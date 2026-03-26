@@ -1,0 +1,18 @@
+inherit_from: ./configs/wildgs_slam.yaml
+
+dataset: rosbags
+
+data:
+  root_folder: ./datasets/rosbags
+  output: ./output/rosbags
+
+cam:
+  H: 480
+  W: 640
+  fx: 383.888000
+  fy: 383.888000
+  cx: 319.708435
+  cy: 238.739868
+  distortion: [0.0, 0.0, 0.0, 0.0, 0.0]
+  H_out: 480
+  W_out: 640

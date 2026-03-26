@@ -1,0 +1,38 @@
+scene: rosbag2_2025_09_04-09_59_34 # Replace with your scene name
+
+inherit_from: ./configs/wildgs_slam.yaml
+
+dataset: rosbags
+data:
+  root_folder: ./datasets/rosbags
+  output: ./output/rosbags
+  input_folder: /home/user1/WildGS-SLAM/datasets/rosbags/rosbag2_2025_09_04-09_59_34
+
+cam:
+  H: 480
+  W: 640
+  fx: 383.888000
+  fy: 383.888000
+  cx: 319.708435
+  cy: 238.739868
+  distortion: [0.0, 0.0, 0.0, 0.0, 0.0]
+  H_out: 360
+  W_out: 640
+
+
+#mapping:
+#  Training:
+#    alpha: 0.8 # Increase this value to make rendering loss weighs more on rgb rather than depth
+#  uncertainty_params:
+#    # For outdoor dataset where the metric depth estimation is unstable, 
+#    # I recommend to set this value to be 0.1 or even 0.
+#    uncer_depth_mult: 0.2 
+
+
+# Uncomment the following lines to enable fast mode and GUI
+fast_mode: True
+gui: True
+
+# Uncomment the following lines to save online plotting data
+#mapping:
+#  online_plotting: True

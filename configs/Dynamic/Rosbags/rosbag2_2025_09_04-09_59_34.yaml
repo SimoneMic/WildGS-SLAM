@@ -1,0 +1,10 @@
+inherit_from: ./configs/Dynamic/Rosbags/rosbag.yaml
+scene: rosbag2_2025_09_04-09_59_34
+
+fast_mode: True
+gui: True
+mapping:
+  online_plotting: True
+  
+data:
+  input_folder: /home/user1/WildGS-SLAM/datasets/rosbags/rosbag2_2025_09_04-09_59_34

@@ -7,5 +7,5 @@ mapping:
   online_plotting: True
 
 data:
-  input_folder: ROOT_FOLDER_PLACEHOLDER/scene1/crowd
+  input_folder: /home/user1/WildGS-SLAM/datasets/Wild_SLAM_Mocap/scene1/crowd
   output: ./output/Wild_SLAM_Mocap_demo
