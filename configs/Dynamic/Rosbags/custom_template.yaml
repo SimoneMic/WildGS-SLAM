@@ -31,8 +31,8 @@ cam:
 
 # Uncomment the following lines to enable fast mode and GUI
 fast_mode: True
-gui: True
+gui: False
 
 # Uncomment the following lines to save online plotting data
-#mapping:
-#  online_plotting: True
+mapping:
+  online_plotting: True

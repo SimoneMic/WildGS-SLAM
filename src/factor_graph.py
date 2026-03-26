@@ -173,6 +173,9 @@ class FactorGraph:
     @torch.amp.autocast('cuda',enabled=True)
     def rm_keyframe(self, ix):
         """ drop edges from factor graph """
+        if ix+1 >= len(self.video.timestamp):
+            print(f"Error while removing graph keyframes!: {ix=} with len= {len(self.video.timestamp)=}")
+            return
         with self.video.get_lock():
             self.video.timestamp[ix] = self.video.timestamp[ix+1]
             self.video.images[ix] = self.video.images[ix+1]
