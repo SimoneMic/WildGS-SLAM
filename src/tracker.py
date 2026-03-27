@@ -38,54 +38,60 @@ class Tracker:
         4. send the estimated pose and depth to mapper, 
             and wait until the mapper finish its current mapping optimization.
         '''
-        prev_kf_idx = 0
-        curr_kf_idx = 0
-        prev_ba_idx = 0
+        try:
+            prev_kf_idx = 0
+            curr_kf_idx = 0
+            prev_ba_idx = 0
 
-        intrinsic = stream.get_intrinsic()
-        # for (timestamp, image, _, _) in tqdm(stream):
-        for i in range(len(stream)):
-            timestamp, image, _, _ = stream[i]
-            with torch.no_grad():
-                starting_count = self.video.counter.value
-                ### check there is enough motion
-                force_to_add_keyframe = self.motion_filter.track(timestamp, image, intrinsic)
+            intrinsic = stream.get_intrinsic()
+            # for (timestamp, image, _, _) in tqdm(stream):
+            for i in range(len(stream)):
+                timestamp, image, _, _ = stream[i]
+                with torch.no_grad():
+                    starting_count = self.video.counter.value
+                    ### check there is enough motion
+                    force_to_add_keyframe = self.motion_filter.track(timestamp, image, intrinsic)
 
-                # local bundle adjustment
-                self.frontend(force_to_add_keyframe)
+                    # local bundle adjustment
+                    self.frontend(force_to_add_keyframe)
 
-                if (starting_count < self.video.counter.value) and self.cfg['mapping']['full_resolution']:
-                    if self.motion_filter.uncertainty_aware:
-                        img_full = stream.get_color_full_resol(i)
-                        self.motion_filter.get_img_feature(timestamp,img_full,suffix='full')
-            curr_kf_idx = self.video.counter.value - 1
-            
-            if curr_kf_idx != prev_kf_idx and self.frontend.is_initialized:
-                if self.video.counter.value == self.frontend.warmup:
-                    ## We just finish the initialization
-                    self.pipe.send({"is_keyframe":True, "video_idx":curr_kf_idx,
-                                    "timestamp":timestamp, "just_initialized": True, 
-                                    "end":False})
-                    self.pipe.recv()
-                    self.frontend.initialize_second_stage()
-                else:
-                    if self.enable_online_ba and curr_kf_idx >= prev_ba_idx + self.ba_freq:
-                        # run online global BA every {self.ba_freq} keyframes
-                        self.printer.print(f"Online BA at {curr_kf_idx}th keyframe, frame index: {timestamp}",FontColor.TRACKER)
-                        self.online_ba.dense_ba(2)
-                        prev_ba_idx = curr_kf_idx
-                    # inform the mapper that the estimation of current pose and depth is finished
-                    self.pipe.send({"is_keyframe":True, "video_idx":curr_kf_idx,
-                                    "timestamp":timestamp, "just_initialized": False, 
-                                    "end":False})
-                    self.pipe.recv()
+                    if (starting_count < self.video.counter.value) and self.cfg['mapping']['full_resolution']:
+                        if self.motion_filter.uncertainty_aware:
+                            img_full = stream.get_color_full_resol(i)
+                            self.motion_filter.get_img_feature(timestamp,img_full,suffix='full')
+                curr_kf_idx = self.video.counter.value - 1
 
-            prev_kf_idx = curr_kf_idx
-            self.printer.update_pbar()
+                if curr_kf_idx != prev_kf_idx and self.frontend.is_initialized:
+                    if self.video.counter.value == self.frontend.warmup:
+                        ## We just finish the initialization
+                        self.pipe.send({"is_keyframe":True, "video_idx":curr_kf_idx,
+                                        "timestamp":timestamp, "just_initialized": True, 
+                                        "end":False})
+                        self.pipe.recv()
+                        self.frontend.initialize_second_stage()
+                    else:
+                        if self.enable_online_ba and curr_kf_idx >= prev_ba_idx + self.ba_freq:
+                            # run online global BA every {self.ba_freq} keyframes
+                            self.printer.print(f"Online BA at {curr_kf_idx}th keyframe, frame index: {timestamp}",FontColor.TRACKER)
+                            self.online_ba.dense_ba(2)
+                            prev_ba_idx = curr_kf_idx
+                        # inform the mapper that the estimation of current pose and depth is finished
+                        self.pipe.send({"is_keyframe":True, "video_idx":curr_kf_idx,
+                                        "timestamp":timestamp, "just_initialized": False, 
+                                        "end":False})
+                        self.pipe.recv()
 
-        self.pipe.send({"is_keyframe":True, "video_idx":None,
-                        "timestamp":None, "just_initialized": False, 
-                        "end":True})
+                prev_kf_idx = curr_kf_idx
+                self.printer.update_pbar()
+
+            self.pipe.send({"is_keyframe":True, "video_idx":None,
+                    "timestamp":None, "just_initialized": False, 
+                    "end":True})
+        except Exception as ex:
+            print(f"[tracker] {ex=}")
+            #self.pipe.send({"is_keyframe":True, "video_idx":None,
+            #            "timestamp":None, "just_initialized": False, 
+            #            "end":True})
 
 
                 

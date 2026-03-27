@@ -270,50 +270,57 @@ class SLAM:
         self.printer.print(f"File saved as {file_path}", FontColor.EVAL)
 
     def run(self):
-        m_pipe, t_pipe = mp.Pipe()
+        try:
+            m_pipe, t_pipe = mp.Pipe()
 
-        q_main2vis = mp.Queue() if self.cfg['gui'] else None
-        q_vis2main = mp.Queue() if self.cfg['gui'] else None
+            q_main2vis = mp.Queue() if self.cfg['gui'] else None
+            q_vis2main = mp.Queue() if self.cfg['gui'] else None
 
-        processes = [
-            mp.Process(target=self.tracking, args=(t_pipe,)),
-            mp.Process(target=self.mapping, args=(m_pipe,q_main2vis,q_vis2main)),
-        ]
-        self.num_running_thread += len(processes)
-        if self.cfg['gui']:
-            self.num_running_thread += 1
-        for p in processes:
-            p.start()
+            processes = [
+                mp.Process(target=self.tracking, args=(t_pipe,)),
+                mp.Process(target=self.mapping, args=(m_pipe,q_main2vis,q_vis2main)),
+            ]
+            self.num_running_thread += len(processes)
+            if self.cfg['gui']:
+                self.num_running_thread += 1
+            for p in processes:
+                p.start()
 
-        if self.cfg['gui']:
-            pipeline_params = munchify(self.cfg["mapping"]["pipeline_params"])
-            bg_color = [0, 0, 0]
-            background = torch.tensor(
-                bg_color, dtype=torch.float32, device=self.device
-            )
-            gaussians = GaussianModel(self.cfg['mapping']['model_params']['sh_degree'], config=self.cfg)
+            if self.cfg['gui']:
+                pipeline_params = munchify(self.cfg["mapping"]["pipeline_params"])
+                bg_color = [0, 0, 0]
+                background = torch.tensor(
+                    bg_color, dtype=torch.float32, device=self.device
+                )
+                gaussians = GaussianModel(self.cfg['mapping']['model_params']['sh_degree'], config=self.cfg)
 
-            params_gui = gui_utils.ParamsGUI(
-                pipe=pipeline_params,
-                background=background,
-                gaussians=gaussians,
-                q_main2vis=q_main2vis,
-                q_vis2main=q_vis2main,
-            )
-            gui_process = mp.Process(target=slam_gui.run, args=(params_gui,))
-            gui_process.start()
-            self.all_trigered += 1
+                params_gui = gui_utils.ParamsGUI(
+                    pipe=pipeline_params,
+                    background=background,
+                    gaussians=gaussians,
+                    q_main2vis=q_main2vis,
+                    q_vis2main=q_vis2main,
+                )
+                gui_process = mp.Process(target=slam_gui.run, args=(params_gui,))
+                gui_process.start()
+                self.all_trigered += 1
 
 
-        for p in processes:
-            p.join()
+            for p in processes:
+                p.join()
 
-        self.printer.terminate()
+            self.printer.terminate()
 
-        for process in mp.active_children():
-            process.terminate()
-            process.join()
+            for process in mp.active_children():
+                process.terminate()
+                process.join()
+        except Exception as ex:
+            print(f"[slam::run] {ex=}")
+            self.printer.terminate()
 
+            for process in mp.active_children():
+                process.terminate()
+                process.join()
 
 def gen_pose_matrix(R, T):
     pose = np.eye(4)

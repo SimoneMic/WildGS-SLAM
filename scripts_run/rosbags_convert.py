@@ -14,10 +14,10 @@ import rclpy
 from rclpy.time import Time
 
 # ==== CONFIG ====
-BAG_FOLDER = "/home/user1/rosbags/floor0_objDet3_take4_2025-09-04/rosbag2_2025_09_04-09_59_34"
-BAG_NAME = "rosbag2_2025_09_04-09_59_34_0.mcap"
-BAG_PATH = BAG_FOLDER + "/" + "rosbag2_2025_09_04-09_59_34_0.mcap"
-OUTPUT_DIR = "/home/user1/WildGS-SLAM/datasets/rosbags/rosbag2_2025_09_04-09_59_34"
+BAG_FOLDER = "/home/user1/rosbags/floor1_ergoCub_vendingmachines_2/rosbag2_2025_08_06-14_17_15"
+BAG_NAME = "rosbag2_2025_08_06-14_17_15_0.mcap"
+BAG_PATH = BAG_FOLDER + "/" + BAG_NAME
+OUTPUT_DIR = "/home/user1/WildGS-SLAM/datasets/rosbags/floor1_ergoCub_vendingmachines_2"
 
 RGB_TOPIC = "/camera/rgbd/img"
 DEPTH_TOPIC = "/camera/rgbd/depth"
