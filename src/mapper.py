@@ -244,6 +244,7 @@ class Mapper(object):
                 self.keyframe_optimizers = torch.optim.Adam(opt_params)
 
                 with Lock():
+                    gaussian_split = False
                     if self.config['fast_mode']:
                         # We are in fast mode,
                         # update map and uncertainty MLP every 4 key frames

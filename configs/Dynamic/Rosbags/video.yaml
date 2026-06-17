@@ -1,0 +1,23 @@
+inherit_from: ./configs/wildgs_slam.yaml
+
+dataset: wild_slam_iphone
+scene: C0002
+data:
+  root_folder: ./datasets/video
+  output: ./output/video
+  input_folder: /home/user1/WildGS-SLAM/datasets/video/C0002
+
+fast_mode: True
+gui: True
+mapping:
+  online_plotting: False
+cam:
+  H: 1080
+  W: 1920
+  fx: 1429.3
+  fy: 1429.3
+  cx: 960.0
+  cy: 540.0
+  distortion: [0.0, 0.0, 0.0, 0.0, 0.0]
+  H_out: 360
+  W_out: 480
